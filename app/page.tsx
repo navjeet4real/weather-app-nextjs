@@ -4,6 +4,12 @@ import { Navbar } from "@/components/Navbar";
 import { useAtom } from "jotai";
 import { loadingCityAtom, placeAtom } from "./atom";
 import { format, fromUnixTime, parseISO } from "date-fns";
+import { convertKelvinToCelsius } from "@/utils/convertKelvinToCelsius";
+import { convertWindSpeed } from "@/utils/convertWindSpeed";
+import { getDayOrNightIcon } from "@/utils/getDayOrNightIcon";
+// import { metersToKilometers } from "@/utils/metersToKilometers";
+import Container from "@/components/Container";
+import WeatherIcon from "@/components/WeatherIcon";
 
 interface WeatherDetail {
   dt: number;
@@ -119,6 +125,49 @@ export default async function Home() {
                       ({format(parseISO(firstData?.dt_txt ?? ""), "dd.MM.yyyy")})
                     </p>
                   </h2>
+                  <Container className=" gap-10 px-6 items-center">
+                  {/* temprature */}
+                  <div className=" flex flex-col px-4 ">
+                    <span className="text-5xl">
+                      {convertKelvinToCelsius(firstData?.main.temp ?? 296.37)}°
+                    </span>
+                    <p className="text-xs space-x-1 whitespace-nowrap">
+                      <span> Feels like</span>
+                      <span>
+                        {convertKelvinToCelsius(
+                          firstData?.main.feels_like ?? 0
+                        )}
+                        °
+                      </span>
+                    </p>
+                    <p className="text-xs space-x-2">
+                      <span>
+                        {convertKelvinToCelsius(firstData?.main.temp_min ?? 0)}
+                        °↓{" "}
+                      </span>
+                      <span>
+                        {" "}
+                        {convertKelvinToCelsius(firstData?.main.temp_max ?? 0)}
+                        °↑
+                      </span>
+                    </p>
+                  </div>
+                  {/* time  and weather  icon */}
+                  <div className="flex gap-10 sm:gap-16 overflow-x-auto w-full justify-between pr-3">
+                    {data?.list.map((d, i) => (
+                      <div
+                        key={i}
+                        className="flex flex-col justify-between gap-2 items-center text-xs font-semibold "
+                      >
+                        <p className="whitespace-nowrap">
+                          {format(parseISO(d.dt_txt), "h:mm a")}
+                        </p>
+
+                        <p>{convertKelvinToCelsius(d?.main.temp ?? 0)}°</p>
+                      </div>
+                    ))}
+                  </div>
+                </Container>
                 </div>
               </section>
             </>
