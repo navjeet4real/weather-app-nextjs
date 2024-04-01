@@ -81,8 +81,10 @@ async function getWeatherData({ place }: { place: string }) {
   const data = await response.json();
   return data;
 }
+
 export default async function Home() {
   const [place, setPlace] = useAtom<string>(placeAtom);
+  console.log("place", place);
   const [loadingCity] = useAtom(loadingCityAtom);
 
   const data = await getWeatherData({ place });
@@ -91,7 +93,7 @@ export default async function Home() {
 
   // console.log("error", error);
 
-  console.log("data", data);
+  // console.log("data", data);
 
   const uniqueDates = [
     ...new Set(
@@ -110,7 +112,7 @@ export default async function Home() {
     });
   });
 
-  console.log(firstDataForEachDate, "data",uniqueDates);
+  // console.log(firstDataForEachDate, "data",uniqueDates);
   return (
     <div className="flex min-h-screen flex-col gap-4  bg-gray-100">
       <Navbar />
