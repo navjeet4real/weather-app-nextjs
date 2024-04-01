@@ -12,6 +12,10 @@ import WeatherIcon from "@/components/WeatherIcon";
 import { metersToKilometers } from "@/utils/metersToKilometers";
 import WeatherDetails from "@/components/WeatherDetails";
 import ForecastWeatherDetail from "@/components/ForecastWeatherDetail";
+import { useQuery } from "react-query";
+import { useEffect } from "react";
+import axios from "axios";
+
 
 interface WeatherDetail {
   dt: number;
@@ -68,26 +72,24 @@ interface WeatherData {
   };
 }
 
-async function getWeatherData({ place }: { place: string }) {
-  if (!place) {
-    throw new Error('place is null or undefined');
-  }
-  const response = await fetch(
-    `https://api.openweathermap.org/data/2.5/forecast?q=${place}&appid=${process.env.NEXT_PUBLIC_WEATHER_API_KEY}`
-  );
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  const data = await response.json();
-  return data;
-}
-
-export default async function Home() {
+export default function Home() {
   const [place, setPlace] = useAtom<string>(placeAtom);
   console.log("place", place);
   const [loadingCity] = useAtom(loadingCityAtom);
 
-  const data = await getWeatherData({ place });
+  const { isLoading, error, data, refetch } = useQuery<WeatherData>(
+    "repoData",
+    async () => {
+      const { data } = await axios.get(
+        `https://api.openweathermap.org/data/2.5/forecast?q=${place}&appid=${process.env.NEXT_PUBLIC_WEATHER_API_KEY}&cnt=56`
+      );
+      return data;
+    }
+  );
+
+  useEffect(() => {
+    refetch();
+  }, [place, refetch]);
 
   const firstData = data?.list[0];
 
@@ -112,6 +114,19 @@ export default async function Home() {
     });
   });
 
+  if (isLoading)
+  return (
+    <div className="flex items-center min-h-screen justify-center">
+      <p className="animate-bounce">Loading...</p>
+    </div>
+  );
+if (error)
+  return (
+    <div className="flex items-center min-h-screen justify-center">
+      {/* @ts-ignore */}
+      <p className="text-red-400">{error.message}</p>
+    </div>
+  );
   // console.log(firstDataForEachDate, "data",uniqueDates);
   return (
     <div className="flex min-h-screen flex-col gap-4  bg-gray-100">
