@@ -1,17 +1,17 @@
 'use client';
 
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from "../components/Navbar";
 import { useAtom } from "jotai";
 import { loadingCityAtom, placeAtom } from "./atom";
 import { format, fromUnixTime, parseISO } from "date-fns";
-import { convertKelvinToCelsius } from "@/utils/convertKelvinToCelsius";
-import { convertWindSpeed } from "@/utils/convertWindSpeed";
-import { getDayOrNightIcon } from "@/utils/getDayOrNightIcon";
-import Container from "@/components/Container";
-import WeatherIcon from "@/components/WeatherIcon";
-import { metersToKilometers } from "@/utils/metersToKilometers";
-import WeatherDetails from "@/components/WeatherDetails";
-import ForecastWeatherDetail from "@/components/ForecastWeatherDetail";
+import { convertKelvinToCelsius } from "../utils/convertKelvinToCelsius";
+import { convertWindSpeed } from "../utils/convertWindSpeed";
+import { getDayOrNightIcon } from "../utils/getDayOrNightIcon";
+import Container from "../components/Container";
+import WeatherIcon from "../components/WeatherIcon";
+import { metersToKilometers } from "../utils/metersToKilometers";
+import WeatherDetails from "../components/WeatherDetails";
+import ForecastWeatherDetail from "../components/ForecastWeatherDetail";
 import { useQuery } from "react-query";
 import { useEffect } from "react";
 import axios from "axios";
@@ -74,7 +74,6 @@ interface WeatherData {
 
 export default function Home() {
   const [place, setPlace] = useAtom<string>(placeAtom);
-  console.log("place", place);
   const [loadingCity] = useAtom(loadingCityAtom);
 
   const { isLoading, error, data, refetch } = useQuery<WeatherData>(
@@ -93,21 +92,17 @@ export default function Home() {
 
   const firstData = data?.list[0];
 
-  // console.log("error", error);
-
-  // console.log("data", data);
-
   const uniqueDates = [
     ...new Set(
       data?.list.map(
-        (entry: Date) => new Date(entry.dt * 1000).toISOString().split("T")[0]
+        (entry) => new Date(entry.dt * 1000).toISOString().split("T")[0]
       )
     )
   ];
 
   // Filtering data to get the first entry after 6 AM for each unique date
   const firstDataForEachDate = uniqueDates.map((date) => {
-    return data?.list.find((entry : Date) => {
+    return data?.list.find((entry) => {
       const entryDate = new Date(entry.dt * 1000).toISOString().split("T")[0];
       const entryTime = new Date(entry.dt * 1000).getHours();
       return entryDate === date && entryTime >= 6;
@@ -115,22 +110,21 @@ export default function Home() {
   });
 
   if (isLoading)
-  return (
-    <div className="flex items-center min-h-screen justify-center">
-      <p className="animate-bounce">Loading...</p>
-    </div>
-  );
-if (error)
-  return (
-    <div className="flex items-center min-h-screen justify-center">
-      {/* @ts-ignore */}
-      <p className="text-red-400">{error.message}</p>
-    </div>
-  );
-  // console.log(firstDataForEachDate, "data",uniqueDates);
+    return (
+      <div className="flex items-center min-h-screen justify-center">
+        <p className="animate-bounce">Loading...</p>
+      </div>
+    );
+  if (error)
+    return (
+      <div className="flex items-center min-h-screen justify-center">
+        {/* @ts-ignore */}
+        <p className="text-red-400">{error.message}</p>
+      </div>
+    );
   return (
     <div className="flex min-h-screen flex-col gap-4  bg-gray-100">
-      <Navbar location={data?.city.name}/>
+      <Navbar location={data?.city.name || ""} />
 
       <main className="px-3 max-w-7xl mx-auto flex flex-col gap-9  w-full  pb-10 pt-4 ">
         {
@@ -224,33 +218,33 @@ if (error)
                 </div>
               </section>
               <section className="flex w-full flex-col gap-4  ">
-              <p className="text-2xl">Forcast (7 days)</p>
-              {firstDataForEachDate.map((d, i) => (
-                <ForecastWeatherDetail
-                  key={i}
-                  description={d?.weather[0].description ?? ""}
-                  weatehrIcon={d?.weather[0].icon ?? "01d"}
-                  date={d ? format(parseISO(d.dt_txt), "dd.MM") : ""}
-                  day={d ? format(parseISO(d.dt_txt), "dd.MM") : "EEEE"}
-                  feels_like={d?.main.feels_like ?? 0}
-                  temp={d?.main.temp ?? 0}
-                  temp_max={d?.main.temp_max ?? 0}
-                  temp_min={d?.main.temp_min ?? 0}
-                  airPressure={`${d?.main.pressure} hPa `}
-                  humidity={`${d?.main.humidity}% `}
-                  sunrise={format(
-                    fromUnixTime(data?.city.sunrise ?? 1702517657),
-                    "H:mm"
-                  )}
-                  sunset={format(
-                    fromUnixTime(data?.city.sunset ?? 1702517657),
-                    "H:mm"
-                  )}
-                  visability={`${metersToKilometers(d?.visibility ?? 10000)} `}
-                  windSpeed={`${convertWindSpeed(d?.wind.speed ?? 1.64)} `}
-                />
-              ))}
-            </section>
+                <p className="text-2xl">Forcast (7 days)</p>
+                {firstDataForEachDate.map((d, i) => (
+                  <ForecastWeatherDetail
+                    key={i}
+                    description={d?.weather[0].description ?? ""}
+                    weatehrIcon={d?.weather[0].icon ?? "01d"}
+                    date={d ? format(parseISO(d.dt_txt), "dd.MM") : ""}
+                    day={d ? format(parseISO(d.dt_txt), "dd.MM") : "EEEE"}
+                    feels_like={d?.main.feels_like ?? 0}
+                    temp={d?.main.temp ?? 0}
+                    temp_max={d?.main.temp_max ?? 0}
+                    temp_min={d?.main.temp_min ?? 0}
+                    airPressure={`${d?.main.pressure} hPa `}
+                    humidity={`${d?.main.humidity}% `}
+                    sunrise={format(
+                      fromUnixTime(data?.city.sunrise ?? 1702517657),
+                      "H:mm"
+                    )}
+                    sunset={format(
+                      fromUnixTime(data?.city.sunset ?? 1702517657),
+                      "H:mm"
+                    )}
+                    visability={`${metersToKilometers(d?.visibility ?? 10000)} `}
+                    windSpeed={`${convertWindSpeed(d?.wind.speed ?? 1.64)} `}
+                  />
+                ))}
+              </section>
             </>
           )
         }

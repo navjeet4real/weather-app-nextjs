@@ -1,7 +1,7 @@
 
 import * as React from 'react';
 import { IoSearch } from 'react-icons/io5';
-import { cn } from "@/utils/cn";
+import { cn } from "../utils/cn";
 
 type Props = {
   className?: string;

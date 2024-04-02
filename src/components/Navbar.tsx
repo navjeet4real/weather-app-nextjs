@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { MdMyLocation, MdOutlineLocationOn, MdWbSunny } from 'react-icons/md';
 import SearchBox from './SearchBox';
-import { loadingCityAtom, placeAtom } from "@/app/atom";
+import { loadingCityAtom, placeAtom } from "../app/atom";
 import { useAtom } from "jotai";
 import axios from 'axios';
 
@@ -23,7 +23,6 @@ export function Navbar({ location }: Props) {
     const [_, setLoadingCity] = useAtom(loadingCityAtom)
 
     async function handleInputChang(value: string) {
-        console.log("handleInputChang", value)
         setCity(value);
         if (value.length >= 3) {
             try {
@@ -33,7 +32,6 @@ export function Navbar({ location }: Props) {
 
 
                 const suggestions = response.data.list.map((item: any) => item.name);
-                console.log("suggestions", suggestions);
                 setSuggestions(suggestions);
                 setError("");
                 setShowSuggestions(true);
@@ -53,7 +51,6 @@ export function Navbar({ location }: Props) {
     }
 
     function handleSubmiSearch(e: React.FormEvent<HTMLFormElement>) {
-        console.log("handleSubmiSearch clicked",)
         setLoadingCity(true);
         e.preventDefault();
         if (suggestions.length == 0) {
@@ -70,7 +67,6 @@ export function Navbar({ location }: Props) {
     }
 
     const handleCurrentLocation = () => {
-        // console.log("place", place);
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const { latitude, longitude } = position.coords;
@@ -94,7 +90,6 @@ export function Navbar({ location }: Props) {
         }
     };
 
-    console.log(location, "location", suggestions, "suggestions")
 
     return (
         <>
@@ -170,7 +165,6 @@ function SuggetionBox({
     error: string;
 }) {
 
-    console.log(showSuggestions, "suggetionBox", suggestions)
     return (
         <>
             {((showSuggestions && suggestions.length > 1) || error) && (
