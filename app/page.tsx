@@ -130,7 +130,7 @@ if (error)
   // console.log(firstDataForEachDate, "data",uniqueDates);
   return (
     <div className="flex min-h-screen flex-col gap-4  bg-gray-100">
-      <Navbar />
+      <Navbar location={data?.city.name}/>
 
       <main className="px-3 max-w-7xl mx-auto flex flex-col gap-9  w-full  pb-10 pt-4 ">
         {
@@ -183,7 +183,7 @@ if (error)
                           </p>
 
                           <WeatherIcon
-                            iconName={getDayOrNightIcon(
+                            iconname={getDayOrNightIcon(
                               d.weather[0].icon,
                               d.dt_txt
                             )}
@@ -201,7 +201,7 @@ if (error)
                       {firstData?.weather[0].description}{" "}
                     </p>
                     <WeatherIcon
-                      iconName={getDayOrNightIcon(
+                      iconname={getDayOrNightIcon(
                         firstData?.weather[0].icon ?? "",
                         firstData?.dt_txt ?? ""
                       )}

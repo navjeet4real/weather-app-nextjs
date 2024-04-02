@@ -5,6 +5,7 @@ import { MdMyLocation, MdOutlineLocationOn, MdWbSunny } from 'react-icons/md';
 import SearchBox from './SearchBox';
 import { loadingCityAtom, placeAtom } from "@/app/atom";
 import { useAtom } from "jotai";
+import axios from 'axios';
 
 type Props = {
     location: string
@@ -25,30 +26,26 @@ export function Navbar({ location }: Props) {
         console.log("handleInputChang", value)
         setCity(value);
         if (value.length >= 3) {
-          try {
-            const response = await fetch(
-              `https://api.openweathermap.org/data/2.5/find?q=${value}&appid=${API_KEY}`
-            );
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            try {
+                const response = await axios.get(
+                    `https://api.openweathermap.org/data/2.5/find?q=${value}&appid=${API_KEY}`
+                );
+
+
+                const suggestions = response.data.list.map((item: any) => item.name);
+                console.log("suggestions", suggestions);
+                setSuggestions(suggestions);
+                setError("");
+                setShowSuggestions(true);
+            } catch (error) {
+                setSuggestions([]);
+                setShowSuggestions(false);
             }
-            const data = await response.json();
-            console.log( "data", data)
-    
-            const suggestions = data?.list.map((item: any) => item.name);
-            console.log("suggestions", suggestions);
-            setSuggestions(suggestions);
-            setError("");
-            setShowSuggestions(true);
-          } catch (error) {
+        } else {
             setSuggestions([]);
             setShowSuggestions(false);
-          }
-        } else {
-          setSuggestions([]);
-          setShowSuggestions(false);
         }
-      }
+    }
 
     function handleSuggestionClick(value: string) {
         setCity(value);
@@ -60,17 +57,17 @@ export function Navbar({ location }: Props) {
         setLoadingCity(true);
         e.preventDefault();
         if (suggestions.length == 0) {
-          setError("Location not found");
-          setLoadingCity(false);
-        } else {
-          setError("");
-          setTimeout(() => {
+            setError("Location not found");
             setLoadingCity(false);
-            setPlace(city);
-            setShowSuggestions(false);
-          }, 500);
+        } else {
+            setError("");
+            setTimeout(() => {
+                setLoadingCity(false);
+                setPlace(city);
+                setShowSuggestions(false);
+            }, 500);
         }
-      }
+    }
 
     const handleCurrentLocation = () => {
         // console.log("place", place);
@@ -80,17 +77,13 @@ export function Navbar({ location }: Props) {
                 try {
                     setLoadingCity(true)
 
-                    const response = await fetch(
+                    const response = await axios.get(
                         `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${process.env.NEXT_PUBLIC_WEATHER_API_KEY}`
                     );
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    const data = await response.json();
 
                     setTimeout(() => {
                         setLoadingCity(false)
-                        setPlace(data.city.name)
+                        setPlace(response.data.city.name)
                     }, 500)
 
                 } catch (error) {
@@ -100,6 +93,8 @@ export function Navbar({ location }: Props) {
             );
         }
     };
+
+    console.log(location, "location", suggestions, "suggestions")
 
     return (
         <>
@@ -118,14 +113,22 @@ export function Navbar({ location }: Props) {
                             className='text-3xl text-gray-500 hover:opacity-80 cursor-pointer' />
                         <MdOutlineLocationOn className='text-3xl ' />
                         <p className='text-slate-900/80 text-sm'>
-                            India
+                            {location}
                         </p>
-                        <div>
+                        <div className='relative  hidden md:flex'>
                             {/* search box */}
                             <SearchBox
                                 value={city}
                                 onSubmit={handleSubmiSearch}
                                 onChange={(e) => handleInputChang(e.target.value)}
+                            />
+                            <SuggetionBox
+                                {...{
+                                    showSuggestions,
+                                    suggestions,
+                                    handleSuggestionClick,
+                                    error
+                                }}
                             />
                         </div>
                     </section>
@@ -138,8 +141,8 @@ export function Navbar({ location }: Props) {
 
                     <SearchBox
                         value={city}
-                     onSubmit={handleSubmiSearch}
-                     onChange={(e) => handleInputChang(e.target.value)}  
+                        onSubmit={handleSubmiSearch}
+                        onChange={(e) => handleInputChang(e.target.value)}
                     />
                     <SuggetionBox
                         {...{
@@ -167,11 +170,11 @@ function SuggetionBox({
     error: string;
 }) {
 
-    console.log(showSuggestions,"suggetionBox", suggestions)
+    console.log(showSuggestions, "suggetionBox", suggestions)
     return (
         <>
             {((showSuggestions && suggestions.length > 1) || error) && (
-                
+
                 <ul className="mb-4 bg-white absolute border top-[44px] left-0 border-gray-300 rounded-md min-w-[200px]  flex flex-col gap-1 py-2 px-2">
                     {error && suggestions.length < 1 && (
                         <li className="text-red-500 p-1 "> {error}</li>
